@@ -1,38 +1,48 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Mensaje from "./Mensaje"
 import CerrarModal from "../img/cerrar.svg"
 
-const Modal = ({setModal, animarModal, setAnimarModal, guardarGasto}) => {
+const Modal = ({ setModal, animarModal, setAnimarModal, guardarGasto, gastoEditar, setGastoEditar }) => {
 
     const [mensaje, setMensaje] = useState('')
     const [nombre, setNombre] = useState('')
-    const [cantidad, setCantidad] = useState('') 
-    const [categoria, setCategoria] = useState('') 
+    const [cantidad, setCantidad] = useState('')
+    const [categoria, setCategoria] = useState('')
+    const [fecha, setFecha] = useState('')
+    const [id, setId] = useState('')
 
-    const ocultarModal = ( ) =>{ 
+    useEffect(() => {
+        if (Object.keys(gastoEditar).length > 0) {
+            setNombre(gastoEditar.nombre)
+            setCantidad(gastoEditar.cantidad)
+            setCategoria(gastoEditar.categoria)
+            setFecha(gastoEditar.fecha)
+            setId(gastoEditar.id)
+        }
+    }, [gastoEditar])
+
+    const ocultarModal = () => {
         setAnimarModal(false)
-
+        setGastoEditar({})
         setTimeout(() => {
             setModal(false)
-        }, 600);  
+        }, 600);
     }
 
-    const handleSubmit = (e) =>{
-        e.preventDefault();
+    const handleSubmit = (e) => {
+        e.preventDefault(); 
 
-        
-        
         // Verificar si todos los campos estan llenos
-        if([nombre, cantidad, categoria].includes('')){
-            setMensaje('Todos los campos son obligatorios ') 
+        if ([nombre, cantidad, categoria].includes('')) {
+            setMensaje('Todos los campos son obligatorios ')
             // Ocultar el mensaje de alerta 
-            setTimeout(() =>{
+            setTimeout(() => {
                 setMensaje('')
-            },3000 )
+            }, 3000)
             return;
-        } 
+        }
         // Crear el objeto que va a almacenar el gasto 
-        guardarGasto({nombre, cantidad, categoria})
+        guardarGasto({ nombre, cantidad, categoria, fecha, id })
     }
 
     return (
@@ -51,7 +61,7 @@ const Modal = ({setModal, animarModal, setAnimarModal, guardarGasto}) => {
                 onSubmit={(handleSubmit)}
                 className={`formulario ${animarModal ? 'animar' : 'cerrar'}`}
             >
-                <legend> Nuevo Gasto </legend>
+                <legend> {gastoEditar.nombre ? "Editar Gasto" : "Nuevo Gasto"} </legend>
 
                 {mensaje && <Mensaje tipo='error'>{mensaje} </Mensaje>}
 
@@ -60,9 +70,9 @@ const Modal = ({setModal, animarModal, setAnimarModal, guardarGasto}) => {
                     <input
                         id="nombre"
                         type="text"
-                        placeholder="Añade el nombre del gasto" 
+                        placeholder="Añade el nombre del gasto"
                         value={nombre}
-                        onChange={ e => setNombre(e.target.value)}
+                        onChange={e => setNombre(e.target.value)}
                     />
                 </div>
                 <div className="campo">
@@ -70,31 +80,31 @@ const Modal = ({setModal, animarModal, setAnimarModal, guardarGasto}) => {
                     <input
                         id="cantidad"
                         type="number"
-                        placeholder="Añade la cantidad del gasto. ej:300" 
+                        placeholder="Añade la cantidad del gasto. ej:300"
                         value={cantidad}
-                        onChange={ e => setCantidad(Number(e.target.value))}
+                        onChange={e => setCantidad(Number(e.target.value))}
                     />
                 </div>
                 <div className="campo">
                     <label htmlFor="categoria" >Categoria </label>
-                    <select 
+                    <select
                         id="categoria"
                         value={categoria}
-                        onChange={ e => setCategoria(e.target.value)}  
+                        onChange={e => setCategoria(e.target.value)}
                     >
-                        <option value="">--Seleccione--</option> 
-                        <option value="ahorro">Ahorro</option> 
+                        <option value="">--Seleccione--</option>
+                        <option value="ahorro">Ahorro</option>
                         <option value="comida">Comida</option>
                         <option value="casa">Casa</option>
                         <option value="varios">Gastos varios</option>
                         <option value="ocio">Ocio</option>
                         <option value="salud">Salud</option>
                         <option value="suscripciones">Suscripciones</option>
-                    </select> 
+                    </select>
                 </div>
                 <input
                     type='submit'
-                    value='Añadir Gasto'
+                    value={gastoEditar.nombre ? "Guardar cambios" : "Añadir Gasto"} 
                 />
             </form>
 
